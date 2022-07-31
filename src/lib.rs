@@ -13,6 +13,9 @@ mod tests;
 #[cfg(feature = "runtime-benchmarks")]
 mod benchmarking;
 
+pub type Balance = u128;
+pub type EraIndex = u32;
+
 pub use pallet::*;
 #[frame_support::pallet]
 pub mod pallet {
@@ -20,13 +23,23 @@ pub mod pallet {
 	use frame_support::pallet_prelude::*;
 	use frame_system::pallet_prelude::*;
 
-	// #[derive(PartialEq, Eq, Clone, Encode, Decode, RuntimeDebug, TypeInfo, Default)]
-	// pub struct Ledger {
-	// 	#[codec(compact)]
-	// 	pub staked: Balance,
-	// 	/// Corresponding to the unlocking of the subaccount's staking ledger on relaychain
-	// 	pub unlocking: Vec<UnlockChunk>,
-	// }
+	#[derive(PartialEq, Eq, Clone, Encode, Decode, RuntimeDebug, TypeInfo, Default)]
+	pub struct Ledger {
+		#[codec(compact)]
+		pub staked: Balance,
+		pub unstaking: Vec<UnstakeChunk>,
+	}
+
+	#[derive(PartialEq, Eq, Clone, Encode, Decode, RuntimeDebug, TypeInfo)]
+	pub struct UnstakeChunk {
+		/// Amount to be unstaked.
+		#[codec(compact)]
+		pub value: Balance,
+		/// Era number at which it'll be unstaked.
+		#[codec(compact)]
+		pub era: EraIndex,
+	}
+	
 	/// Configure the pallet by specifying the parameters and types on which it depends.
 	#[pallet::config]
 	pub trait Config: frame_system::Config + pallet_staking::Config {
